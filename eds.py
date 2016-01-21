@@ -30,7 +30,21 @@ def ustd(list):
 
 def loadEDSdata(csvfile):
     """process csv file from EDS-Philips system
+    or txt files from Espirit
     creates dictionary of elements containing wt at and vol fractions"""
+
+    """
+        elements - dictionary
+
+        elements['Cu']
+             ['wt'] = 0.123
+             ['at'] = 0.123
+             ['vol'] = 0.123
+
+        wt percentage of Cu:
+        elements['Cu']['wt']
+    """
+
     elements = {}
     try:
         #fname = csvfile.toUtf8()
@@ -40,20 +54,42 @@ def loadEDSdata(csvfile):
     except KeyError:
          print "error opening file {0}".format(csvfile)
     lines = csv.readlines()
-    for line in lines[13:]:
-        print line
-        tmp = line.split(",")
-        if len(tmp) == 7:
+
+    if csvfile.endswith(".csv"):
+        """Processing EDS-Philips files"""
+        for line in lines[13:]:
+            print line
+            tmp = line.split(",")
+            if len(tmp) == 7:
+                ct = {}
+                # position 1 - wt percent, 2 - atomic percent
+                _wt = float(tmp[1].strip())
+                _at = float(tmp[2].strip())
+                ct["wt"] = ufloat(_wt,EDSerror(_wt)*_wt)
+                ct["at"] = ufloat(_at,EDSerror(_wt)*_at)
+                ct["vol"] = ufloat(0.0, 0.0) # to be calculated later...
+                # element content
+                elements[tmp[0][:-1].strip()] = ct
+    
+    elif csvfile.endswith(".txt"):
+        """Processing Espirit files"""
+        tmp_names = lines[0][30:].split()
+        tmp_wts = lines[1][30:].split()
+        print "*"*80
+        #print tmp_names
+        #print tmp_wts
+        for pair in zip(tmp_names, tmp_wts):
             ct = {}
-            # position 1 - wt percent, 2 - atomic percent
-            _wt = float(tmp[1].strip())
-            _at = float(tmp[2].strip())
-            ct["wt"] = ufloat((_wt,EDSerror(_wt)*_wt))
-            ct["at"] = ufloat((_at,EDSerror(_wt)*_at))
-            ct["vol"] = ufloat((0.0, 0.0)) # to be calculated later...
-            # element content
-            elements[tmp[0][:-1].strip()] = ct
-    #return elements
+            element_name = pair[0][:-3]
+            element_wt = pair[1]
+            _wt = float(element_wt.strip())
+            ct["wt"] = ufloat(_wt,EDSerror(_wt)*_wt)
+            ct["at"] = ufloat(0.0, 0.0) # to be calculated later...
+            ct["vol"] = ufloat(0.0, 0.0) # to be calculated later...
+            elements[element_name] = ct
+
+        #print elements
+
     return recalcFromWt(elements)
 
 def calcAl2O3(elements):
@@ -97,13 +133,33 @@ def calcZrO2(elements):
     return recalcFromWt(elements)
 
 def recalcFromWt(elements):
-    #definitions
-    density = { 'Ni': 8.908, 'W': 19.25, 'Al': 2.70,
-                'Al2O3' :  4.05, 'O' : 0.000001, 'Mo' : 10.28,
-                'Fe' : 7.874, 'Zr' : 6.52, 'ZrO2' : 5.68 }
-    molMass = { 'Ni': 58.693, 'W': 183.84, 'Al': 26.982,
-                'O': 15.999, 'Al2O3' :  101.961, 'Mo' : 95.96,
-                'Fe' : 55.845, 'Zr' : 91.224, 'ZrO2' : 123.222 }
+    #definitions of elements
+    density = { 'Ni'    : 8.908,
+                'W'     : 19.25,
+                'Al'    : 2.70,
+                'Al2O3' : 4.05,
+                'O'     : 1.141,  # desity of liquid oxygen... 
+                'Mo'    : 10.28,
+                'Fe'    : 7.874,
+                'Zr'    : 6.52,
+                'ZrO2'  : 5.68,
+                'Cu'    : 8.96,
+                'Pt'    : 21.45,
+                'C'     : 2.1 }   #amorphous has desity from 1.8 - 2.1  
+
+    molMass = { 'Ni'    : 58.693,
+                'W'     : 183.84,
+                'Al'    : 26.982,
+                'O'     : 15.999,
+                'Al2O3' : 101.961,
+                'Mo'    : 95.96,
+                'Fe'    : 55.845,
+                'Zr'    : 91.224,
+                'ZrO2'  : 123.222,
+                'Cu'    : 63.546,
+                'Pt'    : 195.084,
+                'C'     : 12.011 }
+
     mtotal = 0
     #calc of atomic percentage
     for key in elements.keys():
@@ -116,6 +172,8 @@ def recalcFromWt(elements):
     for key in elements.keys():
         elements[key]["vol"] = elements[key]["wt"] / density[key]
         vtotal += elements[key]["vol"]
+        print key, vtotal, elements[key]["vol"]
+    print "*"*80
     for key in elements.keys():
         elements[key]["vol"] = 100 * elements[key]["vol"] / vtotal
     return elements

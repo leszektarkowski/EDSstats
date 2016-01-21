@@ -65,11 +65,11 @@ class MainWindow(QtGui.QWidget):
         if qtver == 'PySide':
             csvfile, fil = QtGui.QFileDialog.getOpenFileName(self,
                                                       caption="Open ESD file",
-                                                      filter="EDS files (*.csv)")
+                                                      filter="EDS files (*.csv);;ESPIRIT (*.txt)")
         else:
             csvfile = QtGui.QFileDialog.getOpenFileName(self,
                                                       caption="Open ESD file",
-                                                      filter="EDS files (*.csv)")
+                                                      filter="EDS files (*.csv);;ESPIRIT (*.txt)")
         if csvfile:
             self.process_multiple_files([csvfile])
 
@@ -78,11 +78,11 @@ class MainWindow(QtGui.QWidget):
         if qtver == 'PySide':
             filelist, fil = QtGui.QFileDialog.getOpenFileNames(self,
                                                       caption="Open ESD file(s)",
-                                                      filter="EDS files (*.csv)")
+                                                      filter="EDS files (*.csv);;ESPIRIT (*.txt)")
         else:
             filelist = QtGui.QFileDialog.getOpenFileNames(self,
                                                       caption="Open ESD file(s)",
-                                                      filter="EDS files (*.csv)")
+                                                      filter="EDS files (*.csv);;ESPIRIT (*.txt)")
         self.process_multiple_files(filelist)
 
 
@@ -178,11 +178,11 @@ class MainWindow(QtGui.QWidget):
                     self.table.setItem(rc,i,
                     QtGui.QTableWidgetItem("wt: {0:.2f} +- {1:.2f}\nat: {2:.2f} +- {3:.2f}\nvol: {4:.2f} +- {5:.2f}".
                                                       format(v["wt"].nominal_value,
-                                                             v["wt"].std_dev(),
+                                                             v["wt"].std_dev,
                                                              v["at"].nominal_value,
-                                                             v["at"].std_dev(),
+                                                             v["at"].std_dev,
                                                              v["vol"].nominal_value,
-                                                             v["vol"].std_dev())))
+                                                             v["vol"].std_dev)))
                     i += 1
                 else:
                     self.table.setItem(rc,i,
@@ -220,7 +220,7 @@ class MainWindow(QtGui.QWidget):
                         v = self.wt_total[filename][ele]
                         fout.write("{0:8.2f} {1:8.2f}".
                                                           format(v[t].nominal_value,
-                                                                 v[t].std_dev()))
+                                                                 v[t].std_dev))
                     else:
                         fout.write("      --       --")
             fout.write("\n")

@@ -2,7 +2,7 @@
 """
 Created on Fri Nov 04 14:06:35 2011
 
-@author: X220
+@author: Leszek Tarkowski
 """
 
 from distutils.core import setup
