@@ -1,0 +1,2 @@
+Mass-% (norm.)    Area  HAADF  O-KA  Cu-KA   W-LA  Pt-LA  C-KA  Mo-KA  
+1               215830  31284  0.93  39.79  18.70  40.58  0.00   0.00  
