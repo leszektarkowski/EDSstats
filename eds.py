@@ -73,11 +73,11 @@ def loadEDSdata(csvfile):
     
     elif csvfile.endswith(".txt"):
         """Processing Espirit files"""
-        tmp_names = lines[0][30:].split()
-        tmp_wts = lines[1][30:].split()
+        tmp_names = lines[0][28:].split()
+        tmp_wts = lines[1][28:].split()
         print "*"*80
-        #print tmp_names
-        #print tmp_wts
+        print tmp_names
+        print tmp_wts
         for pair in zip(tmp_names, tmp_wts):
             ct = {}
             element_name = pair[0][:-3]
@@ -126,7 +126,7 @@ def calcZrO2(elements):
     elements.pop('O')
     tmp = {}
     tmp["wt"] = zro2
-    tmp["at"] = ufloat((0.0,0.0))
+    tmp["at"] = ufloat(0.0,0.0)
     elements["ZrO2"] = tmp
     for key in elements.keys():
         elements[key]["wt"] = elements[key]["wt"] / total_mass * 100
